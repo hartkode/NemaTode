@@ -11,13 +11,13 @@ set(CMAKE_RELWITHDEBINFO_POSTFIX "rd" CACHE STRING "Add postfix to target for Re
 set(CMAKE_MINSIZEREL_POSTFIX "s" CACHE STRING "Add postfix to target for MinSizeRel build")
 
 set(headers
-	include/nmeaparse/Event.h
-	include/nmeaparse/GPSFix.h
-	include/nmeaparse/GPSService.h
-	include/nmeaparse/nmea.h
-	include/nmeaparse/NMEACommand.h
-	include/nmeaparse/NMEAParser.h
-	include/nmeaparse/NumberConversion.h
+	include/nmeaparse/Event.hpp
+	include/nmeaparse/GPSFix.hpp
+	include/nmeaparse/GPSService.hpp
+	include/nmeaparse/nmea.hpp
+	include/nmeaparse/NMEACommand.hpp
+	include/nmeaparse/NMEAParser.hpp
+	include/nmeaparse/NumberConversion.hpp
 )
 
 set(sources

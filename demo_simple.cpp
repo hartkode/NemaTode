@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <nmeaparse/nmea.h>
+#include <nmeaparse/nmea.hpp>
 
 
 

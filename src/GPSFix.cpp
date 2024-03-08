@@ -7,7 +7,7 @@
  *  See the license file included with this source.
  */
 
-#include <nmeaparse/GPSFix.h>
+#include <nmeaparse/GPSFix.hpp>
 #include <cmath>
 #include <string>
 #include <sstream>

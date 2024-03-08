@@ -7,8 +7,8 @@
  *  See the license file included with this source.
  */
 
-#include <nmeaparse/NMEAParser.h>
-#include <nmeaparse/NumberConversion.h>
+#include <nmeaparse/NMEAParser.hpp>
+#include <nmeaparse/NumberConversion.hpp>
 #include <sstream>
 #include <iostream>
 #include <algorithm>
