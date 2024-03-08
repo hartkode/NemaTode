@@ -7,8 +7,7 @@
  *  See the license file included with this source.
  */
 
-#ifndef NUMBERCONVERSION_H_
-#define NUMBERCONVERSION_H_
+#pragma once
 
 
 #include <cstdint>
@@ -46,4 +45,3 @@ int64_t parseInt(std::string s, int radix = 10);
 
 
 
-#endif /* NUMBERCONVERSION_H_ */

@@ -7,8 +7,7 @@
  *  See the license file included with this source.
  */
 
-#ifndef GPSSERVICE_H_
-#define GPSSERVICE_H_
+#pragma once
 
 #include <string>
 #include <chrono>
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif /* GPSSERVICE_H_ */

@@ -7,8 +7,7 @@
  *  See the license file included with this source.
  */
 
-#ifndef EVENT_H_
-#define EVENT_H_
+#pragma once
 
 #include <list>
 #include <functional>
@@ -214,4 +213,3 @@ namespace nmea {
 
 }
 
-#endif /* EVENT_H_ */

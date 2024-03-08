@@ -13,8 +13,7 @@
 // The implementation of a GPS data service.
 
 
-#ifndef NMEA_H_
-#define NMEA_H_
+#pragma once
 
 
 
@@ -26,4 +25,3 @@
 
 
 
-#endif //NMEA_H_
