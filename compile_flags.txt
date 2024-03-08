@@ -1,0 +1,9 @@
+-Wall
+-Werror
+-Wextra
+-Wconversion
+-Wdouble-promotion
+-pedantic
+-std=c++17
+-Iinclude
+-I/usr/local/include
