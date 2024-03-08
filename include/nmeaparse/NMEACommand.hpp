@@ -42,20 +42,16 @@ public:
 	Checksum	*0C
 	<CR> <LF> End of message termination
 	*/
-	int32_t baud;     // 4800, 9600, 19200, 38400
-	int32_t databits; // 7, 8 Databits
-	int32_t stopbits; // 0, 1 Stopbits
-	int32_t parity;   // 0=none, 1=odd, 2=even Parity
+	int32_t baud{ 4800 };  // 4800, 9600, 19200, 38400
+	int32_t databits{ 8 }; // 7, 8 Databits
+	int32_t stopbits{ 1 }; // 0, 1 Stopbits
+	int32_t parity{ 0 };   // 0=none, 1=odd, 2=even Parity
 
 	NMEACommandSerialConfiguration()
 	{
-		name     = "PSRF100";
-		baud     = 4800;
-		databits = 8;
-		stopbits = 1;
-		parity   = 0;
+		name = "PSRF100";
 	};
-	virtual std::string toString();
+	std::string toString() override;
 };
 
 class NMEACommandQueryRate : public NMEACommand {
@@ -94,19 +90,15 @@ public:
 		QUERY   = 1
 	};
 
-	NMEASentence::MessageID messageID;
-	QueryRateMode           mode;
-	int                     rate;
-	int                     checksumEnable;
+	NMEASentence::MessageID messageID{ NMEASentence::Unknown };
+	QueryRateMode           mode{ QueryRateMode::SETRATE };
+	int                     rate{ 0 };
+	int                     checksumEnable{ 1 };
 	NMEACommandQueryRate()
 	{
-		name           = "PSRF103";
-		messageID      = NMEASentence::Unknown;
-		mode           = QueryRateMode::SETRATE;
-		rate           = 0;
-		checksumEnable = 1;
+		name = "PSRF103";
 	};
-	virtual std::string toString();
+	std::string toString() override;
 };
 
 } // namespace nmea

@@ -154,7 +154,7 @@ public:
 
 	std::string toString();
 
-	operator std::string();
+	explicit operator std::string();
 
 	static std::string travelAngleToCompassDirection(double deg, bool abbrev = false);
 };

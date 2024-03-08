@@ -19,11 +19,12 @@ using namespace nmea;
 
 // --------- NMEA PARSE ERROR--------------
 
-NMEAParseError::NMEAParseError(std::string msg)
+NMEAParseError::NMEAParseError(string msg)
     : message(msg)
 {
 }
-NMEAParseError::NMEAParseError(std::string msg, NMEASentence n)
+
+NMEAParseError::NMEAParseError(string msg, NMEASentence n)
     : message(msg)
     , nmea(n)
 {
@@ -33,7 +34,7 @@ NMEAParseError::~NMEAParseError()
 {
 }
 
-std::string
+string
 NMEAParseError::what()
 {
 	return message;
@@ -44,14 +45,12 @@ NMEAParseError::what()
 NMEASentence::NMEASentence()
     : isvalid(false)
     , checksumIsCalculated(false)
-    , calculatedChecksum(0)
     , parsedChecksum(0)
+    , calculatedChecksum(0)
 {
 }
 
-NMEASentence::~NMEASentence()
-{
-}
+NMEASentence::~NMEASentence() = default;
 
 bool
 NMEASentence::valid() const
@@ -68,10 +67,10 @@ NMEASentence::checksumOK() const
 
 // true if the text contains a non-alpha numeric value
 bool
-hasNonAlphaNum(string txt)
+hasNonAlphaNum(const string& txt)
 {
 	for ( const char i: txt ) {
-		if ( !isalnum(i) ) {
+		if ( isalnum(i) == 0 ) {
 			return true;
 		}
 	}
@@ -80,10 +79,10 @@ hasNonAlphaNum(string txt)
 
 // true if alphanumeric or '-'
 bool
-validParamChars(string txt)
+validParamChars(const string& txt)
 {
 	for ( const char i: txt ) {
-		if ( !isalnum(i) ) {
+		if ( isalnum(i) == 0 ) {
 			if ( i != '-' && i != '.' ) {
 				return false;
 			}
@@ -96,10 +95,8 @@ validParamChars(string txt)
 void
 squish(string& str)
 {
-	char chars[] = { '\t', ' ' };
-	for ( const char i: chars ) {
-		// needs include <algorithm>
-		str.erase(std::remove(str.begin(), str.end(), i), str.end());
+	for ( const char i: "\t " ) {
+		str.erase(remove(str.begin(), str.end(), i), str.end());
 	}
 }
 
@@ -116,22 +113,21 @@ trim(string& str)
 // --------- NMEA PARSER --------------
 
 NMEAParser::NMEAParser()
-    : log(false)
+    : fillingbuffer(false)
     , maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE)
-    , fillingbuffer(false)
+    , log(false)
 {
 }
 
-NMEAParser::~NMEAParser()
-{
-}
+NMEAParser::~NMEAParser() = default;
 
 void
-NMEAParser::setSentenceHandler(std::string cmdKey, std::function<void(const NMEASentence&)> handler)
+NMEAParser::setSentenceHandler(string cmdKey, function<void(const NMEASentence&)> handler)
 {
 	eventTable.erase(cmdKey);
 	eventTable.insert({ cmdKey, handler });
 }
+
 string
 NMEAParser::getRegisteredSentenceHandlersCSV()
 {
@@ -205,28 +201,28 @@ void
 NMEAParser::readLine(string cmd)
 {
 	cmd += "\r\n";
-	for ( const char i: cmd ) {
-		readByte(i);
+	for ( auto i: cmd ) {
+		readByte(static_cast<uint8_t>(i));
 	}
 }
 
 // Loggers
 void
-NMEAParser::onInfo(NMEASentence& nmea, string txt)
+NMEAParser::onInfo(NMEASentence& /*nmea*/, string txt)
 {
 	if ( log ) {
 		cout << "[Info]    " << txt << endl;
 	}
 }
 void
-NMEAParser::onWarning(NMEASentence& nmea, string txt)
+NMEAParser::onWarning(NMEASentence& /*nmea*/, string txt)
 {
 	if ( log ) {
 		cout << "[Warning] " << txt << endl;
 	}
 }
 void
-NMEAParser::onError(NMEASentence& nmea, string txt)
+NMEAParser::onError(NMEASentence& /*nmea*/, string txt)
 {
 	throw NMEAParseError("[ERROR] " + txt);
 }
@@ -234,7 +230,7 @@ NMEAParser::onError(NMEASentence& nmea, string txt)
 // takes a complete NMEA string and gets the data bits from it,
 // calls the corresponding handler in eventTable, based on the 5 letter sentence code
 void
-NMEAParser::readSentence(std::string cmd)
+NMEAParser::readSentence(string cmd)
 {
 	NMEASentence nmea;
 
@@ -276,9 +272,9 @@ NMEAParser::readSentence(std::string cmd)
 	catch ( NMEAParseError& ) {
 		throw;
 	}
-	catch ( std::exception& e ) {
+	catch ( exception& e ) {
 		string s = " >> NMEA Parser Internal Error: Indexing error?... ";
-		throw std::runtime_error(s + e.what());
+		throw runtime_error(s + e.what());
 	}
 	cout.flags(oldflags); // reset
 
@@ -328,7 +324,7 @@ NMEAParser::calculateChecksum(string s)
 	// if(log)
 	//{
 	//	ios_base::fmtflags oldflags = cout.flags();
-	//	cout << "NMEA parser Info: calculated CHECKSUM for \""  << s << "\": 0x" << std::hex << (int)checksum << endl;
+	//	cout << "NMEA parser Info: calculated CHECKSUM for \""  << s << "\": 0x" << hex << (int)checksum << endl;
 	//	cout.flags(oldflags);  //reset
 	//}
 	return checksum;
@@ -404,7 +400,7 @@ NMEAParser::parseText(NMEASentence& nmea, string txt)
 
 	// comma is the last character/only comma
 	if ( comma + 1 == txt.size() ) {
-		nmea.parameters.push_back("");
+		nmea.parameters.emplace_back("");
 		nmea.isvalid = true;
 		return;
 	}
@@ -430,7 +426,7 @@ NMEAParser::parseText(NMEASentence& nmea, string txt)
 		}
 
 		// cout << "NMEA parser Warning: extra comma at end of sentence, but no information...?" << endl;		// it's actually standard, if checksum is disabled
-		nmea.parameters.push_back("");
+		nmea.parameters.emplace_back("");
 
 		stringstream sz;
 		sz << "Found " << nmea.parameters.size() << " parameters.";
@@ -479,6 +475,4 @@ NMEAParser::parseText(NMEASentence& nmea, string txt)
 	}
 
 	nmea.isvalid = true;
-
-	return;
 }

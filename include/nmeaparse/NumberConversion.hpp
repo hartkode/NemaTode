@@ -13,25 +13,26 @@
 #include <exception>
 #include <sstream>
 #include <string>
+#include <utility>
 
 namespace nmea {
 
 class NumberConversionError : public std::exception {
 public:
-	std::string message;
-	NumberConversionError(std::string msg)
-	    : message(msg){};
+	const std::string message;
+	explicit NumberConversionError(std::string msg)
+	    : message(std::move(msg)){};
 
-	virtual ~NumberConversionError(){};
+	~NumberConversionError() override = default;
 
-	std::string what()
+	[[nodiscard]] const char* what() const noexcept override
 	{
-		return message;
+		return message.c_str();
 	}
 };
 
-double  parseDouble(std::string s);
-int64_t parseInt(std::string s, int radix = 10);
+double  parseDouble(const std::string& str);
+int64_t parseInt(const std::string& str, int radix = 10);
 
 // void NumberConversion_test();
 

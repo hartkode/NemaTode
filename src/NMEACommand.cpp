@@ -14,9 +14,9 @@
 using namespace std;
 using namespace nmea;
 
-NMEACommand::NMEACommand(){};
+NMEACommand::NMEACommand() = default;
 
-NMEACommand::~NMEACommand(){};
+NMEACommand::~NMEACommand() = default;
 
 string
 NMEACommand::toString()
@@ -25,7 +25,7 @@ NMEACommand::toString()
 }
 
 string
-NMEACommand::addChecksum(std::string s)
+NMEACommand::addChecksum(string s)
 {
 	stringstream zz;
 	zz << name << "," << s;
@@ -54,7 +54,7 @@ Table 2-4 Set Serial Port Data Format
  Checksum	*0C
  <CR> <LF> End of message termination
 */
-std::string
+string
 NMEACommandSerialConfiguration::toString()
 {
 	stringstream ss;
@@ -97,7 +97,7 @@ NMEACommandSerialConfiguration::toString()
 //   int rate;
 //   int checksumEnable;
 // Creates a valid NMEA $PSRF103 command sentence.
-std::string
+string
 NMEACommandQueryRate::toString()
 {
 	stringstream ss;

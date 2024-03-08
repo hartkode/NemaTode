@@ -36,7 +36,7 @@ GPSSatellite::toString()
 	return ss.str();
 }
 
-GPSSatellite::operator std::string()
+GPSSatellite::operator string()
 {
 	return toString();
 }
@@ -54,6 +54,7 @@ GPSAlmanac::clear()
 	visibleSize    = 0;
 	satellites.clear();
 }
+
 void
 GPSAlmanac::updateSatellite(GPSSatellite sat)
 {
@@ -63,6 +64,7 @@ GPSAlmanac::updateSatellite(GPSSatellite sat)
 
 	satellites.push_back(sat);
 }
+
 double
 GPSAlmanac::percentComplete()
 {
@@ -72,6 +74,7 @@ GPSAlmanac::percentComplete()
 
 	return ((double) processedPages) / ((double) totalPages) * 100.0;
 }
+
 double
 GPSAlmanac::averageSNR()
 {
@@ -91,6 +94,7 @@ GPSAlmanac::averageSNR()
 
 	return avg;
 }
+
 double
 GPSAlmanac::minSNR()
 {
@@ -146,16 +150,16 @@ GPSTimestamp::GPSTimestamp()
 };
 
 // indexed from 1!
-std::string
+string
 GPSTimestamp::monthName(uint32_t index)
 {
 	if ( index < 1 || index > 12 ) {
-		std::stringstream ss;
+		stringstream ss;
 		ss << "[month:" << index << "]";
 		return ss.str();
 	}
 
-	std::string names[] = {
+	string names[] = {
 		"January",
 		"February",
 		"March",
@@ -214,10 +218,10 @@ GPSTimestamp::setDate(int32_t raw_date)
 	}
 }
 
-std::string
+string
 GPSTimestamp::toString()
 {
-	std::stringstream ss;
+	stringstream ss;
 	ss << hour << "h " << min << "m " << sec << "s"
 	   << "  " << monthName(month) << " " << day << " " << year;
 	return ss.str();
@@ -310,7 +314,7 @@ GPSFix::verticalAccuracy()
 }
 
 // Takes a degree travel heading (0-360') and returns the name
-std::string
+string
 GPSFix::travelAngleToCompassDirection(double deg, bool abbrev)
 {
 	// normalize, just in case
@@ -321,7 +325,7 @@ GPSFix::travelAngleToCompassDirection(double deg, bool abbrev)
 	}
 
 	if ( abbrev ) {
-		std::string dirs[] = {
+		string dirs[] = {
 			"N",
 			"NE",
 			"E",
@@ -335,7 +339,7 @@ GPSFix::travelAngleToCompassDirection(double deg, bool abbrev)
 		return dirs[r];
 	}
 	else {
-		std::string dirs[] = {
+		string dirs[] = {
 			"North",
 			"North East",
 			"East",
@@ -350,7 +354,7 @@ GPSFix::travelAngleToCompassDirection(double deg, bool abbrev)
 	}
 };
 
-std::string
+string
 fixStatusToString(char status)
 {
 	switch ( status ) {
@@ -362,7 +366,8 @@ fixStatusToString(char status)
 		return "Unknown";
 	}
 }
-std::string
+
+string
 fixTypeToString(uint8_t type)
 {
 	switch ( type ) {
@@ -376,7 +381,8 @@ fixTypeToString(uint8_t type)
 		return "Unknown";
 	}
 }
-std::string
+
+string
 fixQualityToString(uint8_t quality)
 {
 	switch ( quality ) {
@@ -399,7 +405,7 @@ fixQualityToString(uint8_t quality)
 	}
 }
 
-std::string
+string
 GPSFix::toString()
 {
 	stringstream       ss;
@@ -436,7 +442,8 @@ GPSFix::toString()
 
 	return ss.str();
 }
-GPSFix::operator std::string()
+
+GPSFix::operator string()
 {
 	return toString();
 }

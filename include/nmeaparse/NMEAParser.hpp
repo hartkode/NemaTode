@@ -50,12 +50,11 @@ public:
 		ZDA     = 8
 	};
 
-public:
 	NMEASentence();
 	virtual ~NMEASentence();
 
-	bool checksumOK() const;
-	bool valid() const;
+	[[nodiscard]] bool checksumOK() const;
+	[[nodiscard]] bool valid() const;
 };
 
 class NMEAParseError : public std::exception {
@@ -63,9 +62,9 @@ public:
 	std::string  message;
 	NMEASentence nmea;
 
-	NMEAParseError(std::string msg);
+	explicit NMEAParseError(std::string msg);
 	NMEAParseError(std::string msg, NMEASentence n);
-	virtual ~NMEAParseError();
+	~NMEAParseError() override;
 
 	std::string what();
 };

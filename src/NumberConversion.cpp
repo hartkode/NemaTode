@@ -16,32 +16,35 @@ namespace nmea {
 // Note: both parseDouble and parseInt return 0 with "" input.
 
 double
-parseDouble(std::string s)
+parseDouble(const string& str)
 {
-	char*  p;
-	double d = ::strtod(s.c_str(), &p);
-	if ( *p != 0 ) {
-		std::stringstream ss;
-		ss << "NumberConversionError: parseDouble() error in argument \"" << s << "\", '"
-		   << *p << "' is not a number.";
+	char*  ptr   = nullptr;
+	double value = ::strtod(str.c_str(), &ptr);
+
+	if ( *ptr != '\0' ) {
+		stringstream ss;
+		ss << "NumberConversionError: parseDouble() error in argument \"" << str << "\", '"
+		   << *ptr << "' is not a number.";
 		throw NumberConversionError(ss.str());
 	}
-	return d;
+
+	return value;
 }
+
 int64_t
-parseInt(std::string s, int radix)
+parseInt(const string& str, int radix)
 {
-	char* p;
+	char*   ptr = nullptr;
+	int64_t value   = ::strtoll(str.c_str(), &ptr, radix);
 
-	int64_t d = ::strtoll(s.c_str(), &p, radix);
-
-	if ( *p != 0 ) {
-		std::stringstream ss;
-		ss << "NumberConversionError: parseInt() error in argument \"" << s << "\", '"
-		   << *p << "' is not a number.";
+	if ( *ptr != '\0' ) {
+		stringstream ss;
+		ss << "NumberConversionError: parseInt() error in argument \"" << str << "\", '"
+		   << *ptr << "' is not a number.";
 		throw NumberConversionError(ss.str());
 	}
-	return d;
+
+	return value;
 }
 
 } // namespace nmea

@@ -20,7 +20,7 @@ using namespace nmea;
 // ------ Some helpers ----------
 // Takes the NMEA lat/long format (dddmm.mmmm, [N/S,E/W]) and converts to degrees N,E only
 double
-convertLatLongToDeg(string llstr, string dir)
+convertLatLongToDeg(const string& llstr, const string& dir)
 {
 	double pd   = parseDouble(llstr);
 	double deg  = trunc(pd / 100); // get ddd from dddmm.mmmm
@@ -40,6 +40,7 @@ convertLatLongToDeg(string llstr, string dir)
 
 	return deg;
 }
+
 double
 convertKnotsToKilometersPerHour(double knots)
 {
@@ -51,11 +52,6 @@ convertKnotsToKilometersPerHour(double knots)
 GPSService::GPSService(NMEAParser& parser)
 {
 	attachToParser(parser); // attach to parser in the GPS object
-}
-
-GPSService::~GPSService()
-{
-	// TODO Auto-generated destructor stub
 }
 
 void
@@ -92,7 +88,7 @@ GPSService::attachToParser(NMEAParser& _parser)
 }
 
 void
-GPSService::read_PSRF150(const NMEASentence& nmea)
+GPSService::read_PSRF150(const NMEASentence& /*unused*/)
 {
 	// nothing right now...
 	// Called with checksum 3E (valid) for GPS turning ON
@@ -232,9 +228,9 @@ GPSService::read_GPGSA(const NMEASentence& nmea)
 		}
 
 		// FIX TYPE
-		bool     lockupdate = false;
-		uint64_t fixtype    = parseInt(nmea.parameters[1]);
-		this->fix.type      = (int8_t) fixtype;
+		bool lockupdate = false;
+		auto fixtype    = parseInt(nmea.parameters[1]);
+		this->fix.type  = static_cast<uint8_t>(fixtype);
 		if ( fixtype == 1 ) {
 			lockupdate = this->fix.setlock(false);
 		}
@@ -313,8 +309,8 @@ GPSService::read_GPGSV(const NMEASentence& nmea)
 			this->fix.visibleSatellites = 0; // if no satellites are tracking, then none are visible!
 		}                                    // Also NMEA defaults to 12 visible when chip powers on. Obviously not right.
 
-		uint32_t totalPages  = (uint32_t) parseInt(nmea.parameters[0]);
-		uint32_t currentPage = (uint32_t) parseInt(nmea.parameters[1]);
+		auto totalPages  = static_cast<uint32_t>(parseInt(nmea.parameters[0]));
+		auto currentPage = static_cast<uint32_t>(parseInt(nmea.parameters[1]));
 
 		// if this is the first page, then reset the almanac
 		if ( currentPage == 1 ) {

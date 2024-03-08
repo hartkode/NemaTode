@@ -48,7 +48,7 @@ private:
 
 public:
 	// Typenames
-	typedef void (*CFunctionPointer)(Args...);
+	using CFunctionPointer = void (*)(Args...);
 
 	// Static members
 	// (none)
@@ -115,7 +115,7 @@ class Event<void(Args...)> {
 
 private:
 	// Typenames
-	typedef typename std::list<EventHandler<void(Args...)>>::iterator ListIterator;
+	using ListIterator = typename std::list<EventHandler<void(Args...)>>::iterator;
 
 	// Static members
 	// (none)
