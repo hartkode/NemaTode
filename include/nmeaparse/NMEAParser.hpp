@@ -12,10 +12,11 @@
 #include <cstdint>
 #include <exception>
 #include <functional>
-#include <nmeaparse/Event.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "nmeaparse/Event.hpp"
 
 // read class definition for info
 #define NMEA_PARSER_MAX_BUFFER_SIZE 2000

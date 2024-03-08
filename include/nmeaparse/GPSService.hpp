@@ -11,10 +11,11 @@
 
 #include <chrono>
 #include <functional>
-#include <nmeaparse/Event.hpp>
-#include <nmeaparse/GPSFix.hpp>
-#include <nmeaparse/NMEAParser.hpp>
 #include <string>
+
+#include "nmeaparse/Event.hpp"
+#include "nmeaparse/GPSFix.hpp"
+#include "nmeaparse/NMEAParser.hpp"
 
 namespace nmea {
 
@@ -31,7 +32,6 @@ public:
 	GPSFix fix;
 
 	explicit GPSService(NMEAParser& parser);
-	virtual ~GPSService() = default;
 
 	Event<void(bool)> onLockStateChanged; // user assignable handler, called whenever lock changes
 	Event<void()>     onUpdate;           // user assignable handler, called whenever fix changes

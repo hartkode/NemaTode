@@ -7,8 +7,9 @@
  *  See the license file included with this source.
  */
 
+#include "nmeaparse/NumberConversion.hpp"
+
 #include <cstdlib>
-#include <nmeaparse/NumberConversion.hpp>
 
 using namespace std;
 
@@ -34,8 +35,8 @@ parseDouble(const string& str)
 int64_t
 parseInt(const string& str, int radix)
 {
-	char*   ptr = nullptr;
-	int64_t value   = ::strtoll(str.c_str(), &ptr, radix);
+	char*   ptr   = nullptr;
+	int64_t value = ::strtoll(str.c_str(), &ptr, radix);
 
 	if ( *ptr != '\0' ) {
 		stringstream ss;

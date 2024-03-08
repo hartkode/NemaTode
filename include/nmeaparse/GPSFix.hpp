@@ -19,29 +19,23 @@
 
 namespace nmea {
 
-class GPSSatellite;
+struct GPSSatellite;
 class GPSAlmanac;
 class GPSFix;
 class GPSService;
 
 // =========================== GPS SATELLITE =====================================
 
-class GPSSatellite {
-public:
-	GPSSatellite()
-	    : snr(0)
-	    , prn(0)
-	    , elevation(0)
-	    , azimuth(0){};
-
+struct GPSSatellite {
 	// satellite data
-	double      snr;       // 0-99 dB
-	uint32_t    prn;       // id - 0-32
-	double      elevation; // 0-90 deg
-	double      azimuth;   // 0-359 deg
+	double      snr{};       // 0-99 dB
+	uint32_t    prn{};       // id - 0-32
+	double      elevation{}; // 0-90 deg
+	double      azimuth{};   // 0-359 deg
+
 	std::string toString();
 
-	operator std::string();
+	explicit operator std::string();
 };
 
 // =========================== GPS ALMANAC =====================================
@@ -50,19 +44,15 @@ class GPSAlmanac {
 	friend GPSService;
 
 private:
-	uint32_t visibleSize;
-	uint32_t lastPage;
-	uint32_t totalPages;
-	uint32_t processedPages;
+	uint32_t visibleSize{};
+	uint32_t lastPage{};
+	uint32_t totalPages{};
+	uint32_t processedPages{};
+
 	void     clear(); // will remove all information from the satellites
 	void     updateSatellite(GPSSatellite sat);
 
 public:
-	GPSAlmanac()
-	    : lastPage(0)
-	    , totalPages(0)
-	    , processedPages(0){};
-
 	// mapped by prn
 	std::vector<GPSSatellite> satellites;
 	double                    averageSNR();
@@ -117,7 +107,6 @@ private:
 
 public:
 	GPSFix();
-	virtual ~GPSFix();
 
 	GPSAlmanac   almanac;
 	GPSTimestamp timestamp;

@@ -6,7 +6,8 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <nmeaparse/nmea.hpp>
+
+#include "nmeaparse/nmea.hpp"
 
 using namespace std;
 using namespace nmea;

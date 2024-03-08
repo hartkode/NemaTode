@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <nmeaparse/GPSService.hpp>
-#include <nmeaparse/NMEACommand.hpp>
-#include <nmeaparse/NMEAParser.hpp>
-#include <nmeaparse/NumberConversion.hpp>
+#include "nmeaparse/GPSService.hpp"
+#include "nmeaparse/NMEACommand.hpp"
+#include "nmeaparse/NMEAParser.hpp"
+#include "nmeaparse/NumberConversion.hpp"

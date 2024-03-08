@@ -7,10 +7,12 @@
  *  See the license file included with this source.
  */
 
+#include "nmeaparse/GPSService.hpp"
+
 #include <cmath>
 #include <iostream>
-#include <nmeaparse/GPSService.hpp>
-#include <nmeaparse/NumberConversion.hpp>
+
+#include "nmeaparse/NumberConversion.hpp"
 
 using namespace std;
 using namespace std::chrono;

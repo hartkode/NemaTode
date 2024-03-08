@@ -7,12 +7,14 @@
  *  See the license file included with this source.
  */
 
+#include "nmeaparse/NMEAParser.hpp"
+
 #include <algorithm>
 #include <cctype>
 #include <iostream>
-#include <nmeaparse/NMEAParser.hpp>
-#include <nmeaparse/NumberConversion.hpp>
 #include <sstream>
+
+#include "nmeaparse/NumberConversion.hpp"
 
 using namespace std;
 using namespace nmea;

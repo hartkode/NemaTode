@@ -157,9 +157,7 @@ public:
 	{
 	}
 
-	virtual ~Event()
-	{
-	}
+	virtual ~Event() = default;
 
 	Event(const Event& ref)
 	{
@@ -168,26 +166,20 @@ public:
 
 	void call(Args... args)
 	{
-		if ( !enabled ) {
-			return;
-		}
-		for ( auto h = handlers.begin(); h != handlers.end(); h++ ) {
-			(*h)(args...);
+		if ( enabled ) {
+			for ( auto& handler: handlers ) {
+				handler(args...);
+			}
 		}
 	}
 
 	EventHandler<void(Args...)> registerHandler(EventHandler<void(Args...)> handler)
 	{
-		bool found = false;
-		for ( auto h = handlers.begin(); h != handlers.end(); h++ ) {
-			if ( (*h) == handler ) {
-				found = true;
+		for ( const auto& h: handlers ) {
+			if ( h == handler ) {
+				handler._iterator = handlers.insert(handlers.end(), handler);
 				break;
 			}
-		}
-		if ( !found ) {
-			ListIterator itr  = handlers.insert(handlers.end(), handler);
-			handler._iterator = itr;
 		}
 		return handler;
 	}
@@ -195,8 +187,7 @@ public:
 	EventHandler<void(Args...)> registerHandler(std::function<void(Args...)> handler)
 	{
 		EventHandler<void(Args...)> wrapper(handler);
-		ListIterator                itr = handlers.insert(handlers.end(), wrapper);
-		wrapper._iterator               = itr;
+		wrapper._iterator = handlers.insert(handlers.end(), wrapper);
 		return wrapper;
 	}
 
@@ -209,8 +200,8 @@ public:
 
 	void clear()
 	{
-		for ( auto h = handlers.begin(); h != handlers.end(); h++ ) {
-			(*h)._iterator = handlers.end();
+		for ( const auto& handler: handlers ) {
+			handler._iterator = handlers.end();
 		}
 		handlers.clear();
 	};
@@ -221,7 +212,7 @@ public:
 	bool                        operator-=(EventHandler<void(Args...)>& handler) { return removeHandler(handler); };
 	bool                        operator-=(uint64_t handlerID) { return removeHandler(handlerID); };
 
-	EventHandler<void(Args...)>& operator=(const EventHandler<void(Args...)>& ref)
+	Event& operator=(const EventHandler<void(Args...)>& ref)
 	{
 		_copy(ref);
 		return *this;

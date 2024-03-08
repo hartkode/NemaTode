@@ -9,8 +9,9 @@
 
 #pragma once
 
-#include <nmeaparse/NMEAParser.hpp>
 #include <string>
+
+#include "nmeaparse/NMEAParser.hpp"
 
 namespace nmea {
 

@@ -7,8 +7,9 @@
  *  See the license file included with this source.
  */
 
+#include "nmeaparse/NMEACommand.hpp"
+
 #include <iomanip>
-#include <nmeaparse/NMEACommand.hpp>
 #include <sstream>
 
 using namespace std;

@@ -7,9 +7,10 @@
  *  See the license file included with this source.
  */
 
+#include "nmeaparse/GPSFix.hpp"
+
 #include <cmath>
 #include <iomanip>
-#include <nmeaparse/GPSFix.hpp>
 #include <sstream>
 #include <string>
 
@@ -249,11 +250,6 @@ GPSFix::GPSFix()
 	altitude           = 0;
 	trackingSatellites = 0;
 	visibleSatellites  = 0;
-}
-
-GPSFix::~GPSFix()
-{
-	// TODO Auto-generated destructor stub
 }
 
 // Returns the duration since the Host has received information
