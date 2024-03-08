@@ -9,12 +9,10 @@
 
 #pragma once
 
-
 #include <cstdint>
-#include <string>
-#include <sstream>
 #include <exception>
-
+#include <sstream>
+#include <string>
 
 namespace nmea {
 
@@ -22,26 +20,19 @@ class NumberConversionError : public std::exception {
 public:
 	std::string message;
 	NumberConversionError(std::string msg)
-		: message(msg)
-	{};
+	    : message(msg){};
 
-	virtual ~NumberConversionError()
-	{};
+	virtual ~NumberConversionError(){};
 
-	std::string what(){
+	std::string what()
+	{
 		return message;
 	}
 };
 
-
-
-
-double parseDouble(std::string s);
+double  parseDouble(std::string s);
 int64_t parseInt(std::string s, int radix = 10);
 
-//void NumberConversion_test();
+// void NumberConversion_test();
 
-}
-
-
-
+} // namespace nmea
