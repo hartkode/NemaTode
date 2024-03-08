@@ -26,82 +26,66 @@ class EventHandler<void(Args...)> {
 	friend Event<void(Args...)>;
 
 private:
-	// Typenames
-	typename Event<void(Args...)>::ListIterator _iterator;
-
 	// Static members
 	static uint64_t LastID;
 
 	// Properties
-	uint64_t                     ID;
-	std::function<void(Args...)> handler;
-
-	// Functions
-	void _copy(const EventHandler& ref)
-	{
-		if ( &ref != this ) {
-			_iterator = ref._iterator;
-			handler   = ref.handler;
-			ID        = ref.ID;
-		}
-	}
+	typename Event<void(Args...)>::ListIterator iterator_;
+	uint64_t                                    ID_;
+	std::function<void(Args...)>                handler_;
 
 public:
 	// Typenames
 	using CFunctionPointer = void (*)(Args...);
 
-	// Static members
-	// (none)
-
-	// Properties
-	// (none)
-
 	// Functions
-	EventHandler(std::function<void(Args...)> h)
-	    : _iterator()
-	    , handler(h)
-	    , ID(++LastID)
+	explicit EventHandler(std::function<void(Args...)> handler)
+	    : iterator_()
+	    , handler_(handler)
+	    , ID_(++LastID)
 	{
 	}
 
 	EventHandler(const EventHandler& ref)
+	    : iterator_(ref.iterator_)
+	    , handler_(ref.handler_)
+	    , ID_(ref.ID_)
 	{
-		_copy(ref);
 	}
 
-	virtual ~EventHandler(){};
-
-	EventHandler& operator=(const EventHandler& ref)
+	EventHandler& operator=(EventHandler ref)
 	{
-		_copy(ref);
+		std::swap(iterator_, ref.iterator_);
+		std::swap(handler_, ref.handler_);
+		std::swap(ID_, ref.ID_);
 		return *this;
 	}
 
 	void operator()(Args... args)
 	{
-		handler(args...);
+		handler_(args...);
 	}
 
 	bool operator==(const EventHandler& ref)
 	{
-		return ID == ref.ID;
+		return ID_ == ref.ID;
 	}
 
 	bool operator!=(const EventHandler& ref)
 	{
-		return ID != ref.ID;
+		return ID_ != ref.ID;
 	}
 
 	uint64_t getID()
 	{
-		return ID;
+		return ID_;
 	}
 
 	// Returns function pointer to the underlying function
 	// or null if it's not a function but implements operator()
 	CFunctionPointer* getFunctionPointer()
 	{
-		CFunctionPointer* ptr = handler.template target<CFunctionPointer>();
+		CFunctionPointer* ptr = handler_.template target<CFunctionPointer>();
 		return ptr;
 	}
 };
@@ -116,9 +100,6 @@ class Event<void(Args...)> {
 private:
 	// Typenames
 	using ListIterator = typename std::list<EventHandler<void(Args...)>>::iterator;
-
-	// Static members
-	// (none)
 
 	// Properties
 	std::list<EventHandler<void(Args...)>> handlers;
@@ -142,22 +123,11 @@ private:
 	};
 
 public:
-	// Typenames
-	// (none)
-
-	// Static members
-	// (none)
-
 	// Properties
-	bool enabled;
+	bool enabled{ true };
 
 	// Functions
-	Event()
-	    : enabled(true)
-	{
-	}
-
-	virtual ~Event() = default;
+	Event() = default;
 
 	Event(const Event& ref)
 	{
@@ -173,35 +143,35 @@ public:
 		}
 	}
 
-	EventHandler<void(Args...)> registerHandler(EventHandler<void(Args...)> handler)
+	EventHandler<void(Args...)> registerHandler(EventHandler<void(Args...)> eventHandler)
 	{
-		for ( const auto& h: handlers ) {
-			if ( h == handler ) {
-				handler._iterator = handlers.insert(handlers.end(), handler);
+		for ( const auto& handler: handlers ) {
+			if ( handler == eventHandler ) {
+				eventHandler.iterator_ = handlers.insert(handlers.end(), eventHandler);
 				break;
 			}
 		}
-		return handler;
+		return eventHandler;
 	}
 
 	EventHandler<void(Args...)> registerHandler(std::function<void(Args...)> handler)
 	{
 		EventHandler<void(Args...)> wrapper(handler);
-		wrapper._iterator = handlers.insert(handlers.end(), wrapper);
+		wrapper.iterator_ = handlers.insert(handlers.end(), wrapper);
 		return wrapper;
 	}
 
 	bool removeHandler(EventHandler<void(Args...)>& handler)
 	{
-		bool sts          = removeHandler(handler._iterator);
-		handler._iterator = handlers.end();
+		bool sts          = removeHandler(handler.iterator_);
+		handler.iterator_ = handlers.end();
 		return sts;
 	};
 
 	void clear()
 	{
 		for ( const auto& handler: handlers ) {
-			handler._iterator = handlers.end();
+			handler.iterator_ = handlers.end();
 		}
 		handlers.clear();
 	};

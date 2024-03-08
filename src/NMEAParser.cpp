@@ -13,6 +13,7 @@
 #include <cctype>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 #include "nmeaparse/NumberConversion.hpp"
 
@@ -22,24 +23,20 @@ using namespace nmea;
 // --------- NMEA PARSE ERROR--------------
 
 NMEAParseError::NMEAParseError(string msg)
-    : message(msg)
+    : message(std::move(msg))
 {
 }
 
 NMEAParseError::NMEAParseError(string msg, NMEASentence n)
-    : message(msg)
-    , nmea(n)
+    : message(std::move(msg))
+    , nmea(std::move(n))
 {
 }
 
-NMEAParseError::~NMEAParseError()
+const char*
+NMEAParseError::what() const noexcept
 {
-}
-
-string
-NMEAParseError::what()
-{
-	return message;
+	return message.c_str();
 }
 
 // --------- NMEA SENTENCE --------------
@@ -51,8 +48,6 @@ NMEASentence::NMEASentence()
     , calculatedChecksum(0)
 {
 }
-
-NMEASentence::~NMEASentence() = default;
 
 bool
 NMEASentence::valid() const
@@ -121,8 +116,6 @@ NMEAParser::NMEAParser()
 {
 }
 
-NMEAParser::~NMEAParser() = default;
-
 void
 NMEAParser::setSentenceHandler(string cmdKey, function<void(const NMEASentence&)> handler)
 {
@@ -154,13 +147,13 @@ NMEAParser::getRegisteredSentenceHandlersCSV()
 }
 
 void
-NMEAParser::readByte(uint8_t b)
+NMEAParser::readByte(uint8_t byte)
 {
 	uint8_t startbyte = '$';
 
 	if ( fillingbuffer ) {
-		if ( b == '\n' ) {
-			buffer.push_back(b);
+		if ( byte == '\n' ) {
+			buffer.push_back(static_cast<char>(byte));
 			try {
 				readSentence(buffer);
 				buffer.clear();
@@ -175,7 +168,7 @@ NMEAParser::readByte(uint8_t b)
 		}
 		else {
 			if ( buffer.size() < maxbuffersize ) {
-				buffer.push_back(b);
+				buffer.push_back(static_cast<char>(byte));
 			}
 			else {
 				buffer.clear(); // clear the host buffer so it won't overflow.
@@ -184,47 +177,48 @@ NMEAParser::readByte(uint8_t b)
 		}
 	}
 	else {
-		if ( b == startbyte ) { // only start filling when we see the start byte.
+		if ( byte == startbyte ) { // only start filling when we see the start byte.
 			fillingbuffer = true;
-			buffer.push_back(b);
+			buffer.push_back(static_cast<char>(byte));
 		}
 	}
 }
 
 void
-NMEAParser::readBuffer(uint8_t* b, uint32_t size)
+NMEAParser::readBuffer(uint8_t* ptr, uint32_t size)
 {
 	for ( uint32_t i = 0; i < size; ++i ) {
-		readByte(b[i]);
+		readByte(ptr[i]);
 	}
 }
 
 void
-NMEAParser::readLine(string cmd)
+NMEAParser::readLine(const string& line)
 {
-	cmd += "\r\n";
-	for ( auto i: cmd ) {
-		readByte(static_cast<uint8_t>(i));
+	for ( auto chr: line ) {
+		readByte(static_cast<uint8_t>(chr));
 	}
+	readByte('\r');
+	readByte('\n');
 }
 
 // Loggers
 void
-NMEAParser::onInfo(NMEASentence& /*nmea*/, string txt)
+NMEAParser::onInfo(NMEASentence& /*nmea*/, const string& txt) const
 {
 	if ( log ) {
 		cout << "[Info]    " << txt << endl;
 	}
 }
 void
-NMEAParser::onWarning(NMEASentence& /*nmea*/, string txt)
+NMEAParser::onWarning(NMEASentence& /*nmea*/, const string& txt) const
 {
 	if ( log ) {
 		cout << "[Warning] " << txt << endl;
 	}
 }
 void
-NMEAParser::onError(NMEASentence& /*nmea*/, string txt)
+NMEAParser::onError(NMEASentence& /*nmea*/, const string& txt) const
 {
 	throw NMEAParseError("[ERROR] " + txt);
 }

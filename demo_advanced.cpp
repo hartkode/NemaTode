@@ -151,7 +151,7 @@ main(int argc, char** argv)
 	// you can create your own from the NMEACommand base class.
 
 	// Test the parser and command generation
-	NMEACommand                    cmd1; // A blank generic command
+	NMEACommand                    cmd1(""); // A blank generic command
 	NMEACommandQueryRate           cmd2; // The $PSRF command that allows for GPS sentence selection and rate setting.
 	NMEACommandQueryRate           cmd3; // The $PSRF command that allows for GPS sentence selection and rate setting.
 	NMEACommandSerialConfiguration cmd4; // The $PSRF command that can configure a UART baud rate.

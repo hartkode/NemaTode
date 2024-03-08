@@ -20,10 +20,12 @@ public:
 	std::string message;
 	std::string name;
 	char        checksum;
-	NMEACommand();
+
+	explicit NMEACommand(const std::string& name);
 	virtual ~NMEACommand();
+
 	virtual std::string toString();
-	std::string         addChecksum(std::string s);
+	std::string         addChecksum(const std::string& str);
 };
 
 class NMEACommandSerialConfiguration : public NMEACommand {
@@ -49,9 +51,8 @@ public:
 	int32_t parity{ 0 };   // 0=none, 1=odd, 2=even Parity
 
 	NMEACommandSerialConfiguration()
-	{
-		name = "PSRF100";
-	};
+	    : NMEACommand("PSRF100"){};
+
 	std::string toString() override;
 };
 
@@ -95,10 +96,10 @@ public:
 	QueryRateMode           mode{ QueryRateMode::SETRATE };
 	int                     rate{ 0 };
 	int                     checksumEnable{ 1 };
+
 	NMEACommandQueryRate()
-	{
-		name = "PSRF103";
-	};
+	    : NMEACommand("PSRF103"){};
+
 	std::string toString() override;
 };
 

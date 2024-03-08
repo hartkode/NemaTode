@@ -15,7 +15,11 @@
 using namespace std;
 using namespace nmea;
 
-NMEACommand::NMEACommand() = default;
+NMEACommand::NMEACommand(const std::string& name)
+    : name(name)
+    , checksum{ 0 }
+{
+}
 
 NMEACommand::~NMEACommand() = default;
 
@@ -26,10 +30,10 @@ NMEACommand::toString()
 }
 
 string
-NMEACommand::addChecksum(string s)
+NMEACommand::addChecksum(const string& str)
 {
 	stringstream zz;
-	zz << name << "," << s;
+	zz << name << "," << str;
 	checksum = NMEAParser::calculateChecksum(zz.str());
 
 	stringstream       ss;
