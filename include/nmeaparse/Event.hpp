@@ -41,15 +41,15 @@ public:
 	// Functions
 	explicit EventHandler(std::function<void(Args...)> handler)
 	    : iterator_()
-	    , handler_(handler)
 	    , ID_(++LastID)
+	    , handler_(handler)
 	{
 	}
 
 	EventHandler(const EventHandler& ref)
 	    : iterator_(ref.iterator_)
-	    , handler_(ref.handler_)
 	    , ID_(ref.ID_)
+	    , handler_(ref.handler_)
 	{
 	}
 
