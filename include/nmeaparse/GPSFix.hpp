@@ -71,19 +71,17 @@ private:
 	static std::string monthName(uint32_t index);
 
 public:
-	GPSTimestamp();
+	int32_t hour{ 0 };
+	int32_t min{ 0 };
+	double  sec{ 0 };
 
-	int32_t hour;
-	int32_t min;
-	double  sec;
-
-	int32_t month;
-	int32_t day;
-	int32_t year;
+	int32_t month{ 1 };
+	int32_t day{ 1 };
+	int32_t year{ 1970 };
 
 	// Values collected directly from the GPS
-	double  rawTime;
-	int32_t rawDate;
+	double  rawTime{ 0 };
+	int32_t rawDate{ 0 };
 
 	[[nodiscard]] time_t getTime() const;
 
@@ -104,37 +102,35 @@ class GPSFix {
 	friend GPSService;
 
 private:
-	bool haslock;
+	bool haslock{ false };
 	bool setlock(bool locked); // returns true if lock status **changed***, false otherwise.
 
 public:
-	GPSFix();
-
 	GPSAlmanac   almanac;
 	GPSTimestamp timestamp;
 
-	char    status;  // Status: A=active, V=void (not locked)
-	uint8_t type;    // Type: 1=none, 2=2d, 3=3d
-	uint8_t quality; // Quality:
-	                 //    0 = invalid
-	                 //    1 = GPS fix (SPS)
-	                 //    2 = DGPS fix
-	                 //    3 = PPS fix
-	                 //    4 = Real Time Kinematic (RTK)
-	                 //    5 = Float RTK
-	                 //    6 = estimated (dead reckoning) (2.3 feature)
+	char    status{ 'V' }; // Status: A=active, V=void (not locked)
+	uint8_t type{ 1 };     // Type: 1=none, 2=2d, 3=3d
+	uint8_t quality{ 0 };  // Quality:
+	                       //    0 = invalid
+	                       //    1 = GPS fix (SPS)
+	                       //    2 = DGPS fix
+	                       //    3 = PPS fix
+	                       //    4 = Real Time Kinematic (RTK)
+	                       //    5 = Float RTK
+	                       //    6 = estimated (dead reckoning) (2.3 feature)
 
-	double dilution;           // Combination of Vertical & Horizontal
-	double horizontalDilution; // Horizontal dilution of precision, initialized to 100, best =1, worst = >20
-	double verticalDilution;   // Vertical is less accurate
+	double dilution{ 0 };           // Combination of Vertical & Horizontal
+	double horizontalDilution{ 0 }; // Horizontal dilution of precision, initialized to 100, best =1, worst = >20
+	double verticalDilution{ 0 };   // Vertical is less accurate
 
-	double  altitude;    // meters
-	double  latitude;    // degrees N
-	double  longitude;   // degrees E
-	double  speed;       // km/h
-	double  travelAngle; // degrees true north (0-360)
-	int32_t trackingSatellites;
-	int32_t visibleSatellites;
+	double  altitude{ 0 };    // meters
+	double  latitude{ 0 };    // degrees N
+	double  longitude{ 0 };   // degrees E
+	double  speed{ 0 };       // km/h
+	double  travelAngle{ 0 }; // degrees true north (0-360)
+	int32_t trackingSatellites{ 0 };
+	int32_t visibleSatellites{ 0 };
 
 	[[nodiscard]] bool locked() const;
 

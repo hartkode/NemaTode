@@ -138,20 +138,6 @@ GPSAlmanac::maxSNR() const
 // ======================== GPS TIMESTAMP ====================
 // ===========================================================
 
-GPSTimestamp::GPSTimestamp()
-{
-	hour = 0;
-	min  = 0;
-	sec  = 0;
-
-	month = 1;
-	day   = 1;
-	year  = 1970;
-
-	rawTime = 0;
-	rawDate = 0;
-};
-
 // indexed from 1!
 string
 GPSTimestamp::monthName(uint32_t index)
@@ -236,26 +222,6 @@ GPSTimestamp::toString() const
 // =====================================================
 // ======================== GPS FIX ====================
 // =====================================================
-
-GPSFix::GPSFix()
-{
-	quality = 0;   // Searching...
-	status  = 'V'; // Void
-	type    = 1;   // 1=none, 2=2d, 3=3d
-
-	haslock = 0;
-
-	dilution           = 0;
-	horizontalDilution = 0; // Horizontal - Best is 1, >20 is terrible, so 0 means uninitialized
-	verticalDilution   = 0;
-	latitude           = 0;
-	longitude          = 0;
-	speed              = 0;
-	travelAngle        = 0;
-	altitude           = 0;
-	trackingSatellites = 0;
-	visibleSatellites  = 0;
-}
 
 // Returns the duration since the Host has received information
 seconds
