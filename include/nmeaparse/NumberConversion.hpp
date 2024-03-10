@@ -23,8 +23,6 @@ public:
 	explicit NumberConversionError(std::string msg)
 	    : message(std::move(msg)){};
 
-	~NumberConversionError() override = default;
-
 	[[nodiscard]] const char* what() const noexcept override
 	{
 		return message.c_str();

@@ -28,14 +28,14 @@ class GPSService;
 
 struct GPSSatellite {
 	// satellite data
-	double      snr{};       // 0-99 dB
-	uint32_t    prn{};       // id - 0-32
-	double      elevation{}; // 0-90 deg
-	double      azimuth{};   // 0-359 deg
+	double   snr{};       // 0-99 dB
+	uint32_t prn{};       // id - 0-32
+	double   elevation{}; // 0-90 deg
+	double   azimuth{};   // 0-359 deg
 
-	std::string toString();
+	[[nodiscard]] std::string toString() const;
 
-	explicit operator std::string();
+	explicit operator std::string() const;
 };
 
 // =========================== GPS ALMANAC =====================================
@@ -49,16 +49,18 @@ private:
 	uint32_t totalPages{};
 	uint32_t processedPages{};
 
-	void     clear(); // will remove all information from the satellites
-	void     updateSatellite(GPSSatellite sat);
+	void clear(); // will remove all information from the satellites
+	void updateSatellite(GPSSatellite sat);
 
 public:
 	// mapped by prn
 	std::vector<GPSSatellite> satellites;
-	double                    averageSNR();
-	double                    minSNR();
-	double                    maxSNR();
-	double                    percentComplete();
+
+	[[nodiscard]] double averageSNR() const;
+	[[nodiscard]] double minSNR() const;
+	[[nodiscard]] double maxSNR() const;
+
+	[[nodiscard]] double percentComplete() const;
 };
 
 // =========================== GPS TIMESTAMP =====================================
@@ -66,7 +68,7 @@ public:
 // UTC time
 class GPSTimestamp {
 private:
-	std::string monthName(uint32_t index);
+	static std::string monthName(uint32_t index);
 
 public:
 	GPSTimestamp();
@@ -83,7 +85,7 @@ public:
 	double  rawTime;
 	int32_t rawDate;
 
-	time_t getTime();
+	[[nodiscard]] time_t getTime() const;
 
 	// Set directly from the NMEA time stamp
 	// hhmmss.sss
@@ -93,7 +95,7 @@ public:
 	// ddmmyy
 	void setDate(int32_t raw_date);
 
-	std::string toString();
+	[[nodiscard]] std::string toString() const;
 };
 
 // =========================== GPS FIX =====================================
@@ -103,7 +105,7 @@ class GPSFix {
 
 private:
 	bool haslock;
-	bool setlock(bool b); // returns true if lock status **changed***, false otherwise.
+	bool setlock(bool locked); // returns true if lock status **changed***, false otherwise.
 
 public:
 	GPSFix();
@@ -134,16 +136,17 @@ public:
 	int32_t trackingSatellites;
 	int32_t visibleSatellites;
 
-	bool   locked();
-	double horizontalAccuracy();
-	double verticalAccuracy();
-	bool   hasEstimate();
+	[[nodiscard]] bool locked() const;
 
-	std::chrono::seconds timeSinceLastUpdate(); // Returns seconds difference from last timestamp and right now.
+	[[nodiscard]] double horizontalAccuracy() const;
+	[[nodiscard]] double verticalAccuracy() const;
+	[[nodiscard]] bool   hasEstimate() const;
 
-	std::string toString();
+	[[nodiscard]] std::chrono::seconds timeSinceLastUpdate() const; // Returns seconds difference from last timestamp and right now.
 
-	explicit operator std::string();
+	[[nodiscard]] std::string toString() const;
+
+	explicit operator std::string() const;
 
 	static std::string travelAngleToCompassDirection(double deg, bool abbrev = false);
 };

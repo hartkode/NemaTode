@@ -9,6 +9,7 @@
 
 #include "nmeaparse/GPSFix.hpp"
 
+#include <array>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -24,20 +25,20 @@ using namespace nmea;
 // ===========================================================
 
 string
-GPSSatellite::toString()
+GPSSatellite::toString() const
 {
-	stringstream ss;
+	stringstream strm;
 
-	ss << "[PRN: " << setw(3) << setfill(' ') << prn << " "
-	   << "  SNR: " << setw(3) << setfill(' ') << snr << " dB  "
-	   << "  Azimuth: " << setw(3) << setfill(' ') << azimuth << " deg "
-	   << "  Elevation: " << setw(3) << setfill(' ') << elevation << " deg  "
-	   << "]";
+	strm << "[PRN: " << setw(3) << setfill(' ') << prn << " "
+	     << "  SNR: " << setw(3) << setfill(' ') << snr << " dB  "
+	     << "  Azimuth: " << setw(3) << setfill(' ') << azimuth << " deg "
+	     << "  Elevation: " << setw(3) << setfill(' ') << elevation << " deg  "
+	     << "]";
 
-	return ss.str();
+	return strm.str();
 }
 
-GPSSatellite::operator string()
+GPSSatellite::operator string() const
 {
 	return toString();
 }
@@ -67,7 +68,7 @@ GPSAlmanac::updateSatellite(GPSSatellite sat)
 }
 
 double
-GPSAlmanac::percentComplete()
+GPSAlmanac::percentComplete() const
 {
 	if ( totalPages == 0 ) {
 		return 0.0;
@@ -77,10 +78,11 @@ GPSAlmanac::percentComplete()
 }
 
 double
-GPSAlmanac::averageSNR()
+GPSAlmanac::averageSNR() const
 {
 	double avg      = 0;
 	double relevant = 0;
+
 	for ( const auto& satellite: satellites ) {
 		if ( satellite.snr > 0 ) {
 			relevant += 1.0;
@@ -97,7 +99,7 @@ GPSAlmanac::averageSNR()
 }
 
 double
-GPSAlmanac::minSNR()
+GPSAlmanac::minSNR() const
 {
 	double min = 9999999;
 	if ( satellites.empty() ) {
@@ -119,7 +121,7 @@ GPSAlmanac::minSNR()
 }
 
 double
-GPSAlmanac::maxSNR()
+GPSAlmanac::maxSNR() const
 {
 	double max = 0;
 	for ( const auto& satellite: satellites ) {
@@ -155,12 +157,12 @@ string
 GPSTimestamp::monthName(uint32_t index)
 {
 	if ( index < 1 || index > 12 ) {
-		stringstream ss;
-		ss << "[month:" << index << "]";
-		return ss.str();
+		stringstream strm;
+		strm << "[month:" << index << "]";
+		return strm.str();
 	}
 
-	string names[] = {
+	static const array<string, 12> names = {
 		"January",
 		"February",
 		"March",
@@ -174,21 +176,24 @@ GPSTimestamp::monthName(uint32_t index)
 		"November",
 		"December"
 	};
-	return names[index - 1];
+
+	return names.at(index - 1);
 };
 
 // Returns seconds since Jan 1, 1970. Classic Epoch time.
 time_t
-GPSTimestamp::getTime()
+GPSTimestamp::getTime() const
 {
-	struct tm t = { 0 };
-	t.tm_year   = year - 1900; // This is year-1900, so 112 = 2012
-	t.tm_mon    = month;       // month from 0:Jan
-	t.tm_mday   = day;
-	t.tm_hour   = hour;
-	t.tm_min    = min;
-	t.tm_sec    = (int) sec;
-	return mktime(&t);
+	struct tm time {};
+
+	time.tm_year = year - 1900; // This is year-1900, so 112 = 2012
+	time.tm_mon  = month;       // month from 0:Jan
+	time.tm_mday = day;
+	time.tm_hour = hour;
+	time.tm_min  = min;
+	time.tm_sec  = (int) sec;
+
+	return mktime(&time);
 }
 
 void
@@ -220,12 +225,12 @@ GPSTimestamp::setDate(int32_t raw_date)
 }
 
 string
-GPSTimestamp::toString()
+GPSTimestamp::toString() const
 {
-	stringstream ss;
-	ss << hour << "h " << min << "m " << sec << "s"
-	   << "  " << monthName(month) << " " << day << " " << year;
-	return ss.str();
+	stringstream strm;
+	strm << hour << "h " << min << "m " << sec << "s"
+	     << "  " << GPSTimestamp::monthName(month) << " " << day << " " << year;
+	return strm.str();
 };
 
 // =====================================================
@@ -254,25 +259,25 @@ GPSFix::GPSFix()
 
 // Returns the duration since the Host has received information
 seconds
-GPSFix::timeSinceLastUpdate()
+GPSFix::timeSinceLastUpdate() const
 {
-	time_t    now   = time(NULL);
-	struct tm stamp = { 0 };
+	time_t    now = time(NULL);
+	struct tm time {};
 
-	stamp.tm_hour = timestamp.hour;
-	stamp.tm_min  = timestamp.min;
-	stamp.tm_sec  = (int) timestamp.sec;
-	stamp.tm_year = timestamp.year - 1900;
-	stamp.tm_mon  = timestamp.month - 1;
-	stamp.tm_mday = timestamp.day;
+	time.tm_hour = timestamp.hour;
+	time.tm_min  = timestamp.min;
+	time.tm_sec  = (int) timestamp.sec;
+	time.tm_year = timestamp.year - 1900;
+	time.tm_mon  = timestamp.month - 1;
+	time.tm_mday = timestamp.day;
 
-	time_t   then = mktime(&stamp);
-	uint64_t secs = (uint64_t) difftime(now, then);
-	return seconds((uint64_t) secs);
+	time_t then = mktime(&time);
+	auto   secs = (uint64_t) difftime(now, then);
+	return seconds(secs);
 }
 
 bool
-GPSFix::hasEstimate()
+GPSFix::hasEstimate() const
 {
 	return (latitude != 0 && longitude != 0) || (quality == 6);
 }
@@ -288,14 +293,14 @@ GPSFix::setlock(bool locked)
 }
 
 bool
-GPSFix::locked()
+GPSFix::locked() const
 {
 	return haslock;
 }
 
 // Returns meters
 double
-GPSFix::horizontalAccuracy()
+GPSFix::horizontalAccuracy() const
 {
 	// horizontal 2drms 95% = 4.0  -- from GPS CHIP datasheets
 	return 4.0 * horizontalDilution;
@@ -303,7 +308,7 @@ GPSFix::horizontalAccuracy()
 
 // Returns meters
 double
-GPSFix::verticalAccuracy()
+GPSFix::verticalAccuracy() const
 {
 	// Vertical 2drms 95% = 6.0  -- from GPS CHIP datasheets
 	return 6.0 * verticalDilution;
@@ -321,7 +326,7 @@ GPSFix::travelAngleToCompassDirection(double deg, bool abbrev)
 	}
 
 	if ( abbrev ) {
-		string dirs[] = {
+		static const array<string, 9> dirs = {
 			"N",
 			"NE",
 			"E",
@@ -332,10 +337,10 @@ GPSFix::travelAngleToCompassDirection(double deg, bool abbrev)
 			"NW",
 			"N"
 		};
-		return dirs[r];
+		return dirs.at(r);
 	}
 	else {
-		string dirs[] = {
+		static const array<string, 9> dirs = {
 			"North",
 			"North East",
 			"East",
@@ -346,7 +351,7 @@ GPSFix::travelAngleToCompassDirection(double deg, bool abbrev)
 			"North West",
 			"North"
 		};
-		return dirs[r];
+		return dirs.at(r);
 	}
 };
 
@@ -402,44 +407,44 @@ fixQualityToString(uint8_t quality)
 }
 
 string
-GPSFix::toString()
+GPSFix::toString() const
 {
-	stringstream       ss;
-	ios_base::fmtflags oldflags = ss.flags();
+	stringstream       strm;
+	ios_base::fmtflags oldflags = strm.flags();
 
-	ss << "========================== GPS FIX ================================" << endl
-	   << " Status: \t\t" << ((haslock) ? "LOCK!" : "SEARCHING...") << endl
-	   << " Satellites: \t\t" << trackingSatellites << " (tracking) of " << visibleSatellites << " (visible)" << endl
-	   << " < Fix Details >" << endl
-	   << "   Age:                " << timeSinceLastUpdate().count() << " s" << endl
-	   << "   Timestamp:          " << timestamp.toString() << "   UTC   \n\t\t\t(raw: " << timestamp.rawTime << " time, " << timestamp.rawDate << " date)" << endl
-	   << "   Raw Status:         " << status << "  (" << fixStatusToString(status) << ")" << endl
-	   << "   Type:               " << (int) type << "  (" << fixTypeToString(type) << ")" << endl
-	   << "   Quality:            " << (int) quality << "  (" << fixQualityToString(quality) << ")" << endl
-	   << "   Lat/Lon (N,E):      " << setprecision(6) << fixed << latitude << "' N, " << longitude << "' E" << endl;
+	strm << "========================== GPS FIX ================================" << endl
+	     << " Status: \t\t" << ((haslock) ? "LOCK!" : "SEARCHING...") << endl
+	     << " Satellites: \t\t" << trackingSatellites << " (tracking) of " << visibleSatellites << " (visible)" << endl
+	     << " < Fix Details >" << endl
+	     << "   Age:                " << timeSinceLastUpdate().count() << " s" << endl
+	     << "   Timestamp:          " << timestamp.toString() << "   UTC   \n\t\t\t(raw: " << timestamp.rawTime << " time, " << timestamp.rawDate << " date)" << endl
+	     << "   Raw Status:         " << status << "  (" << fixStatusToString(status) << ")" << endl
+	     << "   Type:               " << (int) type << "  (" << fixTypeToString(type) << ")" << endl
+	     << "   Quality:            " << (int) quality << "  (" << fixQualityToString(quality) << ")" << endl
+	     << "   Lat/Lon (N,E):      " << setprecision(6) << fixed << latitude << "' N, " << longitude << "' E" << endl;
 
-	ss.flags(oldflags); // reset
+	strm.flags(oldflags); // reset
 
-	ss << "   DOP (P,H,V):        " << dilution << ",   " << horizontalDilution << ",   " << verticalDilution << endl
-	   << "   Accuracy(H,V):      " << horizontalAccuracy() << " m,   " << verticalAccuracy() << " m" << endl;
+	strm << "   DOP (P,H,V):        " << dilution << ",   " << horizontalDilution << ",   " << verticalDilution << endl
+	     << "   Accuracy(H,V):      " << horizontalAccuracy() << " m,   " << verticalAccuracy() << " m" << endl;
 
-	ss << "   Altitude:           " << altitude << " m" << endl
-	   << "   Speed:              " << speed << " km/h" << endl
-	   << "   Travel Dir:         " << travelAngle << " deg  [" << travelAngleToCompassDirection(travelAngle) << "]" << endl
-	   << "   SNR:                avg: " << almanac.averageSNR() << " dB   [min: " << almanac.minSNR() << " dB,  max:" << almanac.maxSNR() << " dB]" << endl;
+	strm << "   Altitude:           " << altitude << " m" << endl
+	     << "   Speed:              " << speed << " km/h" << endl
+	     << "   Travel Dir:         " << travelAngle << " deg  [" << travelAngleToCompassDirection(travelAngle) << "]" << endl
+	     << "   SNR:                avg: " << almanac.averageSNR() << " dB   [min: " << almanac.minSNR() << " dB,  max:" << almanac.maxSNR() << " dB]" << endl;
 
-	ss << " < Almanac (" << almanac.percentComplete() << "%) >" << endl;
+	strm << " < Almanac (" << almanac.percentComplete() << "%) >" << endl;
 	if ( almanac.satellites.empty() ) {
-		ss << " > No satellite info in almanac." << endl;
+		strm << " > No satellite info in almanac." << endl;
 	}
 	for ( size_t i = 0; i < almanac.satellites.size(); i++ ) {
-		ss << "   [" << setw(2) << setfill(' ') << (i + 1) << "]   " << almanac.satellites[i].toString() << endl;
+		strm << "   [" << setw(2) << setfill(' ') << (i + 1) << "]   " << almanac.satellites[i].toString() << endl;
 	}
 
-	return ss.str();
+	return strm.str();
 }
 
-GPSFix::operator string()
+GPSFix::operator string() const
 {
 	return toString();
 }

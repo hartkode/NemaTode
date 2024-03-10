@@ -23,10 +23,10 @@ parseDouble(const string& str)
 	double value = ::strtod(str.c_str(), &ptr);
 
 	if ( *ptr != '\0' ) {
-		stringstream ss;
-		ss << "NumberConversionError: parseDouble() error in argument \"" << str << "\", '"
+		stringstream strm;
+		strm << "NumberConversionError: parseDouble() error in argument \"" << str << "\", '"
 		   << *ptr << "' is not a number.";
-		throw NumberConversionError(ss.str());
+		throw NumberConversionError(strm.str());
 	}
 
 	return value;
@@ -39,10 +39,10 @@ parseInt(const string& str, int radix)
 	int64_t value = ::strtoll(str.c_str(), &ptr, radix);
 
 	if ( *ptr != '\0' ) {
-		stringstream ss;
-		ss << "NumberConversionError: parseInt() error in argument \"" << str << "\", '"
+		stringstream strm;
+		strm << "NumberConversionError: parseInt() error in argument \"" << str << "\", '"
 		   << *ptr << "' is not a number.";
-		throw NumberConversionError(ss.str());
+		throw NumberConversionError(strm.str());
 	}
 
 	return value;
