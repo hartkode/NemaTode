@@ -18,18 +18,21 @@
 namespace nmea {
 
 class NumberConversionError : public std::exception {
+private:
+	const std::string message_;
+
 public:
-	const std::string message;
 	explicit NumberConversionError(std::string msg)
-	    : message(std::move(msg)){};
+	    : message_(std::move(msg)){};
 
 	[[nodiscard]] const char* what() const noexcept override
 	{
-		return message.c_str();
+		return message_.c_str();
 	}
 };
 
-double  parseDouble(const std::string& str);
+double parseDouble(const std::string& str);
+
 int64_t parseInt(const std::string& str, int radix = 10);
 
 // void NumberConversion_test();

@@ -36,7 +36,7 @@ private:
 
 public:
 	// Typenames
-	using CFunctionPointer = void (*)(Args...);
+	using FunctionPointer = void (*)(Args...);
 
 	// Functions
 	explicit EventHandler(std::function<void(Args...)> handler)
@@ -83,9 +83,9 @@ public:
 
 	// Returns function pointer to the underlying function
 	// or null if it's not a function but implements operator()
-	CFunctionPointer* getFunctionPointer()
+	FunctionPointer* getFunctionPointer()
 	{
-		CFunctionPointer* ptr = handler_.template target<CFunctionPointer>();
+		FunctionPointer* ptr = handler_.template target<FunctionPointer>();
 		return ptr;
 	}
 };
@@ -102,23 +102,23 @@ private:
 	using ListIterator = typename std::list<EventHandler<void(Args...)>>::iterator;
 
 	// Properties
-	std::list<EventHandler<void(Args...)>> handlers;
+	std::list<EventHandler<void(Args...)>> handlers_;
 
 	// Functions
 	void _copy(const Event& ref)
 	{
 		if ( &ref != this ) {
-			handlers = ref.handlers;
+			handlers_ = ref.handlers;
 		}
 	};
 
 	bool removeHandler(ListIterator handlerIter)
 	{
-		if ( handlerIter == handlers.end() ) {
+		if ( handlerIter == handlers_.end() ) {
 			return false;
 		}
 
-		handlers.erase(handlerIter);
+		handlers_.erase(handlerIter);
 		return true;
 	};
 
@@ -127,17 +127,11 @@ public:
 	bool enabled{ true };
 
 	// Functions
-	Event() = default;
-
-	Event(const Event& ref)
-	{
-		_copy(ref);
-	}
 
 	void call(Args... args)
 	{
 		if ( enabled ) {
-			for ( auto& handler: handlers ) {
+			for ( auto& handler: handlers_ ) {
 				handler(args...);
 			}
 		}
@@ -145,9 +139,9 @@ public:
 
 	EventHandler<void(Args...)> registerHandler(EventHandler<void(Args...)> eventHandler)
 	{
-		for ( const auto& handler: handlers ) {
+		for ( const auto& handler: handlers_ ) {
 			if ( handler == eventHandler ) {
-				eventHandler.iterator_ = handlers.insert(handlers.end(), eventHandler);
+				eventHandler.iterator_ = handlers_.insert(handlers_.end(), eventHandler);
 				break;
 			}
 		}
@@ -157,23 +151,23 @@ public:
 	EventHandler<void(Args...)> registerHandler(std::function<void(Args...)> handler)
 	{
 		EventHandler<void(Args...)> wrapper(handler);
-		wrapper.iterator_ = handlers.insert(handlers.end(), wrapper);
+		wrapper.iterator_ = handlers_.insert(handlers_.end(), wrapper);
 		return wrapper;
 	}
 
 	bool removeHandler(EventHandler<void(Args...)>& handler)
 	{
 		bool sts          = removeHandler(handler.iterator_);
-		handler.iterator_ = handlers.end();
+		handler.iterator_ = handlers_.end();
 		return sts;
 	};
 
 	void clear()
 	{
-		for ( const auto& handler: handlers ) {
-			handler.iterator_ = handlers.end();
+		for ( const auto& handler: handlers_ ) {
+			handler.iterator_ = handlers_.end();
 		}
-		handlers.clear();
+		handlers_.clear();
 	};
 
 	void                        operator()(Args... args) { return call(args...); };
@@ -181,12 +175,6 @@ public:
 	EventHandler<void(Args...)> operator+=(std::function<void(Args...)> handler) { return registerHandler(handler); };
 	bool                        operator-=(EventHandler<void(Args...)>& handler) { return removeHandler(handler); };
 	bool                        operator-=(uint64_t handlerID) { return removeHandler(handlerID); };
-
-	Event& operator=(const EventHandler<void(Args...)>& ref)
-	{
-		_copy(ref);
-		return *this;
-	};
 };
 
 } // namespace nmea

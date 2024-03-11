@@ -35,13 +35,13 @@ main(int argc, char** argv)
 
 	// Handle any changes to the GPS Fix... This is called after onSentence
 	gps.onUpdate += [&gps]() {
-		cout << "\t\t\tPosition: " << gps.fix.latitude << "'N, " << gps.fix.longitude << "'E" << endl
+		cout << "\t\t\tPosition: " << gps.fix_.latitude_ << "'N, " << gps.fix_.longitude_ << "'E" << endl
 		     << endl;
 	};
 
 	// (optional) - Handle events when the parser receives each sentence
-	parser.onSentence += [&gps](const NMEASentence& n) {
-		cout << "Received " << (n.checksumOK() ? "good" : "bad") << " GPS Data: " << n.name << endl;
+	parser.onSentence_ += [&gps](const NMEASentence& n) {
+		cout << "Received " << (n.checksumOK() ? "good" : "bad") << " GPS Data: " << n.name_ << endl;
 	};
 
 	cout << "-------- Reading GPS NMEA data --------" << endl;
@@ -71,7 +71,7 @@ main(int argc, char** argv)
 				parser.readLine(line);
 			}
 			catch ( NMEAParseError& e ) {
-				cout << e.message << endl
+				cout << e.message_ << endl
 				     << endl;
 				// You can keep feeding data to the gps service...
 				// The previous data is ignored and the parser is reset.
@@ -99,11 +99,11 @@ main(int argc, char** argv)
 	NMEAParser custom_parser;
 	// parser.log = true;
 	custom_parser.setSentenceHandler("MYNMEA", [](const NMEASentence& n) {
-		cout << "Handling $" << n.name << ":" << endl;
-		for ( size_t i = 0; i < n.parameters.size(); ++i ) {
-			cout << "    [" << i << "] \t- " << n.parameters[i];
+		cout << "Handling $" << n.name_ << ":" << endl;
+		for ( size_t i = 0; i < n.parameters_.size(); ++i ) {
+			cout << "    [" << i << "] \t- " << n.parameters_[i];
 			try {
-				double num = parseDouble(n.parameters[i]);
+				double num = parseDouble(n.parameters_[i]);
 				cout << "      (number: " << num << ")";
 			}
 			catch ( NumberConversionError& ) {
@@ -112,8 +112,8 @@ main(int argc, char** argv)
 			cout << endl;
 		}
 	});
-	custom_parser.onSentence += [](const NMEASentence& n) {
-		cout << "Received $" << n.name << endl;
+	custom_parser.onSentence_ += [](const NMEASentence& n) {
+		cout << "Received $" << n.name_ << endl;
 	};
 
 	cout << "-------- Reading non-GPS NMEA data --------" << endl;
@@ -156,8 +156,8 @@ main(int argc, char** argv)
 	NMEACommandQueryRate           cmd3; // The $PSRF command that allows for GPS sentence selection and rate setting.
 	NMEACommandSerialConfiguration cmd4; // The $PSRF command that can configure a UART baud rate.
 	NMEAParser                     test_parser;
-	test_parser.onSentence += [&cmd1, &cmd2, &cmd3, &cmd4](const NMEASentence& n) {
-		cout << "Received:  " << n.text;
+	test_parser.onSentence_ += [&cmd1, &cmd2, &cmd3, &cmd4](const NMEASentence& n) {
+		cout << "Received:  " << n.text_;
 
 		if ( !n.checksumOK() ) {
 			cout << "\t\tChecksum FAIL!" << endl;
@@ -170,20 +170,20 @@ main(int argc, char** argv)
 	cout << "-------- NMEA Command Generation --------" << endl;
 
 	// Just filling it with something. Could be whatever you need.
-	cmd1.name    = "CMD1";
-	cmd1.message = "nothing,special";
+	cmd1.name_    = "CMD1";
+	cmd1.message_ = "nothing,special";
 
 	// Config output rate for $GPGGA sentence
-	cmd2.messageID = NMEASentence::MessageID::GGA;
-	cmd2.mode      = NMEACommandQueryRate::QueryRateMode::SETRATE;
-	cmd2.rate      = 3; // output every 3 seconds, 0 to disable
+	cmd2.messageID_ = NMEASentence::MessageID::GGA;
+	cmd2.mode_      = NMEACommandQueryRate::QueryRateMode::SETRATE;
+	cmd2.rate_      = 3; // output every 3 seconds, 0 to disable
 
 	// Query $GPGSV almanac sentence just this once
-	cmd3.messageID = NMEASentence::MessageID::GSV;
-	cmd3.mode      = NMEACommandQueryRate::QueryRateMode::QUERY;
+	cmd3.messageID_ = NMEASentence::MessageID::GSV;
+	cmd3.mode_      = NMEACommandQueryRate::QueryRateMode::QUERY;
 
 	// Set the Baud rate to 9600, because this GPS chip is awesome
-	cmd4.baud = 9600; // 4800 is NMEA standard
+	cmd4.baud_ = 9600; // 4800 is NMEA standard
 
 	// Generate the NMEA sentence from the commands and send them back into the test parser.
 	test_parser.readSentence(cmd1.toString());

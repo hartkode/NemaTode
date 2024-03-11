@@ -17,9 +17,9 @@ namespace nmea {
 
 class NMEACommand {
 public:
-	std::string message;
-	std::string name;
-	char        checksum;
+	std::string message_;
+	std::string name_;
+	char        checksum_;
 
 	explicit NMEACommand(const std::string& name);
 	virtual ~NMEACommand();
@@ -45,10 +45,10 @@ public:
 	Checksum	*0C
 	<CR> <LF> End of message termination
 	*/
-	int32_t baud{ 4800 };  // 4800, 9600, 19200, 38400
-	int32_t databits{ 8 }; // 7, 8 Databits
-	int32_t stopbits{ 1 }; // 0, 1 Stopbits
-	int32_t parity{ 0 };   // 0=none, 1=odd, 2=even Parity
+	int32_t baud_{ 4800 };  // 4800, 9600, 19200, 38400
+	int32_t databits_{ 8 }; // 7, 8 Databits
+	int32_t stopbits_{ 1 }; // 0, 1 Stopbits
+	int32_t parity_{ 0 };   // 0=none, 1=odd, 2=even Parity
 
 	NMEACommandSerialConfiguration()
 	    : NMEACommand("PSRF100"){};
@@ -92,10 +92,10 @@ public:
 		QUERY   = 1
 	};
 
-	NMEASentence::MessageID messageID{ NMEASentence::Unknown };
-	QueryRateMode           mode{ QueryRateMode::SETRATE };
-	int                     rate{ 0 };
-	int                     checksumEnable{ 1 };
+	NMEASentence::MessageID messageID_{ NMEASentence::Unknown };
+	QueryRateMode           mode_{ QueryRateMode::SETRATE };
+	int                     rate_{ 0 };
+	int                     checksumEnable_{ 1 };
 
 	NMEACommandQueryRate()
 	    : NMEACommand("PSRF103"){};

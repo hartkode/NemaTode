@@ -16,8 +16,8 @@ using namespace std;
 using namespace nmea;
 
 NMEACommand::NMEACommand(const std::string& name)
-    : name(name)
-    , checksum{ 0 }
+    : name_(name)
+    , checksum_{ 0 }
 {
 }
 
@@ -26,19 +26,19 @@ NMEACommand::~NMEACommand() = default;
 string
 NMEACommand::toString()
 {
-	return addChecksum(message);
+	return addChecksum(message_);
 }
 
 string
 NMEACommand::addChecksum(const string& str)
 {
 	stringstream zz;
-	zz << name << "," << str;
-	checksum = NMEAParser::calculateChecksum(zz.str());
+	zz << name_ << "," << str;
+	checksum_ = NMEAParser::calculateChecksum(zz.str());
 
 	stringstream       ss;
 	ios_base::fmtflags oldflags = ss.flags();
-	ss << "$" << zz.str() << "*" << hex << uppercase << internal << setfill('0') << setw(2) << (int) checksum << "\r\n";
+	ss << "$" << zz.str() << "*" << hex << uppercase << internal << setfill('0') << setw(2) << (int) checksum_ << "\r\n";
 	ss.flags(oldflags); // reset
 
 	return ss.str();
@@ -64,10 +64,10 @@ NMEACommandSerialConfiguration::toString()
 {
 	stringstream ss;
 
-	ss << "1," << baud << "," << databits << "," << stopbits << "," << parity;
-	message = ss.str();
+	ss << "1," << baud_ << "," << databits_ << "," << stopbits_ << "," << parity_;
+	message_ = ss.str();
 
-	return NMEACommand::addChecksum(message);
+	return NMEACommand::addChecksum(message_);
 }
 
 //  $PSRF103,00,01,00,01*25
@@ -107,11 +107,11 @@ NMEACommandQueryRate::toString()
 {
 	stringstream ss;
 
-	ss << setfill('0') << setw(2) << messageID << ","
-	   << setfill('0') << setw(2) << mode << ","
-	   << setfill('0') << setw(2) << rate << ","
-	   << setfill('0') << setw(2) << checksumEnable;
-	message = ss.str();
+	ss << setfill('0') << setw(2) << messageID_ << ","
+	   << setfill('0') << setw(2) << mode_ << ","
+	   << setfill('0') << setw(2) << rate_ << ","
+	   << setfill('0') << setw(2) << checksumEnable_;
+	message_ = ss.str();
 
-	return NMEACommand::addChecksum(message);
+	return NMEACommand::addChecksum(message_);
 }

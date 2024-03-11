@@ -29,7 +29,7 @@ private:
 	void read_GPVTG(const NMEASentence& nmea);
 
 public:
-	GPSFix fix;
+	GPSFix fix_;
 
 	explicit GPSService(NMEAParser& parser);
 

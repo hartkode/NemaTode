@@ -23,43 +23,43 @@ using namespace nmea;
 // --------- NMEA PARSE ERROR--------------
 
 NMEAParseError::NMEAParseError(string msg)
-    : message(std::move(msg))
+    : message_(std::move(msg))
 {
 }
 
 NMEAParseError::NMEAParseError(string msg, NMEASentence n)
-    : message(std::move(msg))
-    , nmea(std::move(n))
+    : message_(std::move(msg))
+    , nmea_(std::move(n))
 {
 }
 
 const char*
 NMEAParseError::what() const noexcept
 {
-	return message.c_str();
+	return message_.c_str();
 }
 
 // --------- NMEA SENTENCE --------------
 
 NMEASentence::NMEASentence()
-    : isvalid(false)
-    , checksumIsCalculated(false)
-    , parsedChecksum(0)
-    , calculatedChecksum(0)
+    : isvalid_(false)
+    , checksumIsCalculated_(false)
+    , parsedChecksum_(0)
+    , calculatedChecksum_(0)
 {
 }
 
 bool
 NMEASentence::valid() const
 {
-	return isvalid;
+	return isvalid_;
 }
 
 bool
 NMEASentence::checksumOK() const
 {
-	return (checksumIsCalculated) &&
-	       (parsedChecksum == calculatedChecksum);
+	return (checksumIsCalculated_) &&
+	       (parsedChecksum_ == calculatedChecksum_);
 }
 
 // true if the text contains a non-alpha numeric value
@@ -110,28 +110,28 @@ trim(string& str)
 // --------- NMEA PARSER --------------
 
 NMEAParser::NMEAParser()
-    : fillingbuffer(false)
-    , maxbuffersize(NMEA_PARSER_MAX_BUFFER_SIZE)
-    , log(false)
+    : fillingbuffer_(false)
+    , maxbuffersize_(NMEA_PARSER_MAX_BUFFER_SIZE)
+    , log_(false)
 {
 }
 
 void
-NMEAParser::setSentenceHandler(string cmdKey, function<void(const NMEASentence&)> handler)
+NMEAParser::setSentenceHandler(const string& cmdKey, const function<void(const NMEASentence&)>& handler)
 {
-	eventTable.erase(cmdKey);
-	eventTable.insert({ cmdKey, handler });
+	eventTable_.erase(cmdKey);
+	eventTable_.insert({ cmdKey, handler });
 }
 
 string
-NMEAParser::getRegisteredSentenceHandlersCSV()
+NMEAParser::getRegisteredSentenceHandlersCSV() const
 {
-	if ( eventTable.empty() ) {
+	if ( eventTable_.empty() ) {
 		return "";
 	}
 
 	ostringstream strm;
-	for ( const auto& table: eventTable ) {
+	for ( const auto& table: eventTable_ ) {
 		strm << table.first;
 
 		if ( !table.second ) {
@@ -151,35 +151,35 @@ NMEAParser::readByte(uint8_t byte)
 {
 	uint8_t startbyte = '$';
 
-	if ( fillingbuffer ) {
+	if ( fillingbuffer_ ) {
 		if ( byte == '\n' ) {
-			buffer.push_back(static_cast<char>(byte));
+			buffer_.push_back(static_cast<char>(byte));
 			try {
-				readSentence(buffer);
-				buffer.clear();
-				fillingbuffer = false;
+				readSentence(buffer_);
+				buffer_.clear();
+				fillingbuffer_ = false;
 			}
 			catch ( exception& ) {
 				// If anything happens, let it pass through, but reset the buffer first.
-				buffer.clear();
-				fillingbuffer = false;
+				buffer_.clear();
+				fillingbuffer_ = false;
 				throw;
 			}
 		}
 		else {
-			if ( buffer.size() < maxbuffersize ) {
-				buffer.push_back(static_cast<char>(byte));
+			if ( buffer_.size() < maxbuffersize_ ) {
+				buffer_.push_back(static_cast<char>(byte));
 			}
 			else {
-				buffer.clear(); // clear the host buffer so it won't overflow.
-				fillingbuffer = false;
+				buffer_.clear(); // clear the host buffer so it won't overflow.
+				fillingbuffer_ = false;
 			}
 		}
 	}
 	else {
 		if ( byte == startbyte ) { // only start filling when we see the start byte.
-			fillingbuffer = true;
-			buffer.push_back(static_cast<char>(byte));
+			fillingbuffer_ = true;
+			buffer_.push_back(static_cast<char>(byte));
 		}
 	}
 }
@@ -206,14 +206,14 @@ NMEAParser::readLine(const string& line)
 void
 NMEAParser::onInfo(NMEASentence& /*nmea*/, const string& txt) const
 {
-	if ( log ) {
+	if ( log_ ) {
 		cout << "[Info]    " << txt << endl;
 	}
 }
 void
 NMEAParser::onWarning(NMEASentence& /*nmea*/, const string& txt) const
 {
-	if ( log ) {
+	if ( log_ ) {
 		cout << "[Warning] " << txt << endl;
 	}
 }
@@ -275,11 +275,11 @@ NMEAParser::readSentence(string cmd)
 	if ( !nmea.valid() ) {
 		const size_t linewidth = 35;
 		stringstream strm;
-		if ( nmea.text.size() > linewidth ) {
-			strm << "Invalid text. (\"" << nmea.text.substr(0, linewidth) << "...\")";
+		if ( nmea.text_.size() > linewidth ) {
+			strm << "Invalid text. (\"" << nmea.text_.substr(0, linewidth) << "...\")";
 		}
 		else {
-			strm << "Invalid text. (\"" << nmea.text << "\")";
+			strm << "Invalid text. (\"" << nmea.text_ << "\")";
 		}
 
 		onError(nmea, strm.str());
@@ -288,16 +288,16 @@ NMEAParser::readSentence(string cmd)
 
 	// Call the "any sentence" event handler, even if invalid checksum, for possible logging elsewhere.
 	onInfo(nmea, "Calling generic onSentence().");
-	onSentence(nmea);
+	onSentence_(nmea);
 
 	// Call event handlers based on map entries
-	auto handler = eventTable[nmea.name];
+	auto handler = eventTable_[nmea.name_];
 	if ( handler ) {
-		onInfo(nmea, string("Calling specific handler for sentence named \"") + nmea.name + "\"");
+		onInfo(nmea, string("Calling specific handler for sentence named \"") + nmea.name_ + "\"");
 		handler(nmea);
 	}
 	else {
-		onWarning(nmea, string("Null event handler for type (name: \"") + nmea.name + "\")");
+		onWarning(nmea, string("Null event handler for type (name: \"") + nmea.name_ + "\")");
 	}
 }
 
@@ -325,12 +325,12 @@ void
 NMEAParser::parseText(NMEASentence& nmea, string txt)
 {
 	if ( txt.empty() ) {
-		nmea.isvalid = false;
+		nmea.isvalid_ = false;
 		return;
 	}
 
-	nmea.isvalid = false; // assume it's invalid first
-	nmea.text    = txt;   // save the received text of the sentence
+	nmea.isvalid_ = false; // assume it's invalid first
+	nmea.text_    = txt;   // save the received text of the sentence
 
 	// Looking for index of last '$'
 	size_t startbyte = 0;
@@ -351,7 +351,7 @@ NMEAParser::parseText(NMEASentence& nmea, string txt)
 	bool   haschecksum = checkstri != string::npos;
 	if ( haschecksum ) {
 		// A checksum was passed in the message, so calculate what we expect to see
-		nmea.calculatedChecksum = calculateChecksum(txt.substr(0, checkstri));
+		nmea.calculatedChecksum_ = calculateChecksum(txt.substr(0, checkstri));
 	}
 	else {
 		// No checksum is only a warning because some devices allow sending data with no checksum.
@@ -363,36 +363,36 @@ NMEAParser::parseText(NMEASentence& nmea, string txt)
 	if ( comma == string::npos ) { // comma not found, but there is a name...
 		if ( !txt.empty() ) {      // the received data must just be the name
 			if ( hasNonAlphaNum(txt) ) {
-				nmea.isvalid = false;
+				nmea.isvalid_ = false;
 				return;
 			}
-			nmea.name    = txt;
-			nmea.isvalid = true;
+			nmea.name_    = txt;
+			nmea.isvalid_ = true;
 			return;
 		}
 		else { // it is a '$' with no information
-			nmea.isvalid = false;
+			nmea.isvalid_ = false;
 			return;
 		}
 	}
 
 	//"$," case - no name
 	if ( comma == 0 ) {
-		nmea.isvalid = false;
+		nmea.isvalid_ = false;
 		return;
 	}
 
 	// name should not include first comma
-	nmea.name = txt.substr(0, comma);
-	if ( hasNonAlphaNum(nmea.name) ) {
-		nmea.isvalid = false;
+	nmea.name_ = txt.substr(0, comma);
+	if ( hasNonAlphaNum(nmea.name_) ) {
+		nmea.isvalid_ = false;
 		return;
 	}
 
 	// comma is the last character/only comma
 	if ( comma + 1 == txt.size() ) {
-		nmea.parameters.emplace_back("");
-		nmea.isvalid = true;
+		nmea.parameters_.emplace_back("");
+		nmea.isvalid_ = true;
 		return;
 	}
 
@@ -402,7 +402,7 @@ NMEAParser::parseText(NMEASentence& nmea, string txt)
 	// parse parameters according to csv
 	istringstream istrm(txt);
 	for ( string str; getline(istrm, str, ','); ) {
-		nmea.parameters.push_back(str);
+		nmea.parameters_.push_back(str);
 	}
 
 	// above line parsing does not add a blank parameter if there is a comma at the end...
@@ -410,42 +410,42 @@ NMEAParser::parseText(NMEASentence& nmea, string txt)
 	if ( *(txt.end() - 1) == ',' ) {
 		// supposed to have checksum but there is a comma at the end... invalid
 		if ( haschecksum ) {
-			nmea.isvalid = false;
+			nmea.isvalid_ = false;
 			return;
 		}
 
 		// cout << "NMEA parser Warning: extra comma at end of sentence, but no information...?" << endl;		// it's actually standard, if checksum is disabled
-		nmea.parameters.emplace_back("");
+		nmea.parameters_.emplace_back("");
 
 		stringstream strm;
-		strm << "Found " << nmea.parameters.size() << " parameters.";
+		strm << "Found " << nmea.parameters_.size() << " parameters.";
 		onInfo(nmea, strm.str());
 	}
 	else {
 		stringstream strm;
-		strm << "Found " << nmea.parameters.size() << " parameters.";
+		strm << "Found " << nmea.parameters_.size() << " parameters.";
 		onInfo(nmea, strm.str());
 
 		// possible checksum at end...
-		size_t endi   = nmea.parameters.size() - 1;
-		size_t checki = nmea.parameters[endi].find_last_of('*');
+		size_t endi   = nmea.parameters_.size() - 1;
+		size_t checki = nmea.parameters_[endi].find_last_of('*');
 		if ( checki != string::npos ) {
-			string last           = nmea.parameters[endi];
-			nmea.parameters[endi] = last.substr(0, checki);
+			string last           = nmea.parameters_[endi];
+			nmea.parameters_[endi] = last.substr(0, checki);
 			if ( checki == last.size() - 1 ) {
 				onError(nmea, "Checksum '*' character at end, but no data.");
 			}
 			else {
-				nmea.checksum = last.substr(checki + 1, last.size() - checki); // extract checksum without '*'
+				nmea.checksum_ = last.substr(checki + 1, last.size() - checki); // extract checksum without '*'
 
-				onInfo(nmea, string("Found checksum. (\"*") + nmea.checksum + "\")");
+				onInfo(nmea, string("Found checksum. (\"*") + nmea.checksum_ + "\")");
 
 				try {
-					nmea.parsedChecksum       = (uint8_t) parseInt(nmea.checksum, 16);
-					nmea.checksumIsCalculated = true;
+					nmea.parsedChecksum_       = (uint8_t) parseInt(nmea.checksum_, 16);
+					nmea.checksumIsCalculated_ = true;
 				}
 				catch ( NumberConversionError& ) {
-					onError(nmea, string("parseInt() error. Parsed checksum string was not readable as hex. (\"") + nmea.checksum + "\")");
+					onError(nmea, string("parseInt() error. Parsed checksum string was not readable as hex. (\"") + nmea.checksum_ + "\")");
 				}
 
 				onInfo(nmea, string("Checksum ok? ") + (nmea.checksumOK() ? "YES" : "NO") + "!");
@@ -453,15 +453,15 @@ NMEAParser::parseText(NMEASentence& nmea, string txt)
 		}
 	}
 
-	for ( size_t i = 0; i < nmea.parameters.size(); i++ ) {
-		if ( !validParamChars(nmea.parameters[i]) ) {
-			nmea.isvalid = false;
+	for ( size_t i = 0; i < nmea.parameters_.size(); i++ ) {
+		if ( !validParamChars(nmea.parameters_[i]) ) {
+			nmea.isvalid_ = false;
 			stringstream strm;
-			strm << "Invalid character (non-alpha-num) in parameter " << i << " (from 0): \"" << nmea.parameters[i] << "\"";
+			strm << "Invalid character (non-alpha-num) in parameter " << i << " (from 0): \"" << nmea.parameters_[i] << "\"";
 			onError(nmea, strm.str());
 			break;
 		}
 	}
 
-	nmea.isvalid = true;
+	nmea.isvalid_ = true;
 }

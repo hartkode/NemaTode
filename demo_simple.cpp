@@ -21,20 +21,20 @@ main(int argc, char** argv)
 	// Create a GPS service that will keep track of the fix data.
 	NMEAParser parser;
 	GPSService gps(parser);
-	parser.log = false;
+	parser.log_ = false;
 
 	cout << "Fix  Sats  Sig\t\tSpeed    Dir  Lat         , Lon           Accuracy" << endl;
 	// Handle any changes to the GPS Fix... This is called whenever it's updated.
 	gps.onUpdate += [&gps]() {
-		cout << (gps.fix.locked() ? "[*] " : "[ ] ") << setw(2) << setfill(' ') << gps.fix.trackingSatellites << "/" << setw(2) << setfill(' ') << gps.fix.visibleSatellites << " ";
-		cout << fixed << setprecision(2) << setw(5) << setfill(' ') << gps.fix.almanac.averageSNR() << " dB   ";
-		cout << fixed << setprecision(2) << setw(6) << setfill(' ') << gps.fix.speed << " km/h [" << GPSFix::travelAngleToCompassDirection(gps.fix.travelAngle, true) << "]  ";
-		cout << fixed << setprecision(6) << gps.fix.latitude << "\xF8 "
+		cout << (gps.fix_.locked() ? "[*] " : "[ ] ") << setw(2) << setfill(' ') << gps.fix_.trackingSatellites_ << "/" << setw(2) << setfill(' ') << gps.fix_.visibleSatellites_ << " ";
+		cout << fixed << setprecision(2) << setw(5) << setfill(' ') << gps.fix_.almanac_.averageSNR() << " dB   ";
+		cout << fixed << setprecision(2) << setw(6) << setfill(' ') << gps.fix_.speed_ << " km/h [" << GPSFix::travelAngleToCompassDirection(gps.fix_.travelAngle_, true) << "]  ";
+		cout << fixed << setprecision(6) << gps.fix_.latitude_ << "\xF8 "
 		                                                        "N, "
-		     << gps.fix.longitude << "\xF8 "
+		     << gps.fix_.longitude_ << "\xF8 "
 		                             "E"
 		     << "  ";
-		cout << "+/- " << setprecision(1) << gps.fix.horizontalAccuracy() << "m  ";
+		cout << "+/- " << setprecision(1) << gps.fix_.horizontalAccuracy() << "m  ";
 		cout << endl;
 	};
 
@@ -56,7 +56,7 @@ main(int argc, char** argv)
 			parser.readLine(line);
 		}
 		catch ( NMEAParseError& e ) {
-			cout << e.message << endl
+			cout << e.message_ << endl
 			     << endl;
 			// You can keep feeding data to the gps service...
 			// The previous data is ignored and the parser is reset.
@@ -64,7 +64,7 @@ main(int argc, char** argv)
 	}
 
 	// Show the final fix information
-	cout << gps.fix.toString() << endl;
+	cout << gps.fix_.toString() << endl;
 
 	cin.ignore();
 
